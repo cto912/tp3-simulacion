@@ -215,7 +215,7 @@ class SimApp(tk.Tk):
 
         return n, frm, to, p_neg, p_rec, p_norec, p_rec_no, p_rec_dud, p_rec_si, p_nr_no, p_nr_dud, p_nr_si
 
-    # ── actions ──────────────────────────────────────────────────────────────
+    # *---------------Acciones-------------------------------
 
     def _simulate(self):
         try:
@@ -228,9 +228,9 @@ class SimApp(tk.Tk):
         self._all_rows = run_simulation(n, *probs)
         last_row = self._all_rows[-1]
 
-        # rows to display: range + always the last row
-        idx_range = set(range(frm - 1, to))     # 0-based indices
-        idx_range.add(n - 1)                      # always include last
+
+        idx_range = set(range(frm - 1, to))
+        idx_range.add(n - 1)
         self._displayed_rows = [self._all_rows[i] for i in sorted(idx_range)]
 
         self._refresh_table()
@@ -244,7 +244,8 @@ class SimApp(tk.Tk):
     def _refresh_table(self):
         for item in self.tree.get_children():
             self.tree.delete(item)
-
+        
+        
         last_nro = self._all_rows[-1][0] if self._all_rows else None
 
         for idx, row in enumerate(self._displayed_rows):
@@ -289,7 +290,6 @@ class SimApp(tk.Tk):
         ws = wb.active
         ws.title = "Simulación"
 
-        # header style
         hdr_fill = PatternFill("solid", fgColor="3A7BD5")
         hdr_font = Font(bold=True, color="FFFFFF", name="Arial", size=10)
         hdr_align = Alignment(horizontal="center", vertical="center")
@@ -300,7 +300,6 @@ class SimApp(tk.Tk):
             cell.font = hdr_font
             cell.alignment = hdr_align
 
-        # data rows
         last_nro = self._all_rows[-1][0] if self._all_rows else None
         last_fill = PatternFill("solid", fgColor="D4EDDA")
         sel_fill  = PatternFill("solid", fgColor="F5C542")
@@ -321,18 +320,14 @@ class SimApp(tk.Tk):
                 elif (row_idx - 2) % 2 == 1:
                     cell.fill = even_fill
 
-        # column widths
         for col, width in zip(ws.columns, [10, 10, 28, 10, 22, 14, 12, 12]):
             ws.column_dimensions[col[0].column_letter].width = width
 
-        # freeze header row
         ws.freeze_panes = "A2"
 
         wb.save(path)
         messagebox.showinfo("Exportado", f"Archivo guardado en:\n{path}")
 
-
-# ─── Entry point ─────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     app = SimApp()
