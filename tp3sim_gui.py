@@ -300,13 +300,13 @@ class SimApp(tk.Tk):
             cell.font = hdr_font
             cell.alignment = hdr_align
 
-        last_nro = self._all_rows[-1][0] if self._all_rows else None
+        last_nro = self._displayed_rows[-1][0] if self._displayed_rows else None
         last_fill = PatternFill("solid", fgColor="D4EDDA")
         sel_fill  = PatternFill("solid", fgColor="F5C542")
         even_fill = PatternFill("solid", fgColor="EEF2F8")
         data_font = Font(name="Arial", size=9)
 
-        for row_idx, row in enumerate(self._all_rows, 2):
+        for row_idx, row in enumerate(self._displayed_rows, 2):
             vals = [round(v, 4) if isinstance(v, float) else v for v in row]
             for col_idx, val in enumerate(vals, 1):
                 cell = ws.cell(row=row_idx, column=col_idx, value=val)
