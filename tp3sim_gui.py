@@ -1,4 +1,5 @@
 import random
+import math
 import tkinter as tk
 from tkinter import ttk, messagebox
 import openpyxl
@@ -48,7 +49,7 @@ def run_simulation(n, p_neg, p_rec, p_norec, p_rec_no, p_rec_dud, p_rec_si, p_no
     return rows
 
 
-# ---------------------INTERFAZ GRAFICA---------------------------------------
+# *---------------------INTERFAZ GRAFICA---------------------------------------
 
 COLS = ("Nro", "RAND1", "Respuesta 1", "RAND2", "Respuesta 2", "Dudoso ACM", "P() Dudoso")
 COL_WIDTHS = (60, 70, 200, 70, 160, 90, 90)
@@ -140,7 +141,7 @@ class SimApp(tk.Tk):
         self.tree = ttk.Treeview(table_frame, columns=COLS, show="headings", selectmode="extended")
         for col, w in zip(COLS, COL_WIDTHS):
             self.tree.heading(col, text=col)
-            self.tree.column(col, width=w, anchor="center", stretch=False)
+            self.tree.column(col, width=w, anchor="center", stretch=True)
 
         vsb = ttk.Scrollbar(table_frame, orient="vertical", command=self.tree.yview)
         hsb = ttk.Scrollbar(table_frame, orient="horizontal", command=self.tree.xview)
@@ -152,16 +153,16 @@ class SimApp(tk.Tk):
         table_frame.rowconfigure(0, weight=1)
         table_frame.columnconfigure(0, weight=1)
 
-        # click to toggle persistent highlight
+        # Dejar linea pintada
         self.tree.bind("<ButtonRelease-1>", self._on_click)
 
-        # alternating row tags
+        # Cambio de color de fondo de lineas
         self.tree.tag_configure("odd",  background="#ffffff")
         self.tree.tag_configure("even", background="#eef2f8")
         self.tree.tag_configure("sel_persist", background=SEL_BG, foreground=SEL_FG)
         self.tree.tag_configure("last", background="#d4edda", foreground="#155724", font=("Helvetica", 9, "bold"))
 
-    # ── helpers ──────────────────────────────────────────────────────────────
+    # Funciones de verificacion
 
     def _get_float(self, entry, name):
         try:
@@ -183,8 +184,8 @@ class SimApp(tk.Tk):
                 raise ValueError(f"Las probabilidades de '{group_name}' deben ser >= 0 y <= 1.")
             
         total = round(sum(vals), 10)
-        if abs(total - 1.0) > 1e-9:
-            raise ValueError(f"Las probabilidades de '{group_name}' suman {total:.9f}, deben sumar 1.0 {1e-9}")
+        if not math.isclose(total, 1.0, abs_tol=1e-9):
+            raise ValueError(f"Las probabilidades de '{group_name}' suman {total:.9f}, deben sumar 1.0")
 
     def _read_params(self):
         n     = self._get_int(self.e_n, "Nro de individuos")
@@ -234,10 +235,10 @@ class SimApp(tk.Tk):
 
         self._refresh_table()
 
-        dudoso_prob = last_row[6] / n
+        dudoso_prob = last_row[5] / n
         self.lbl_result.config(
             text=f"Probabilidad de respuesta 'Dudoso': {dudoso_prob:.4f}   "
-                 f"(Dudoso ACM total: {last_row[6]}  /  {n} individuos simulados)"
+                 f"(Dudoso ACM total: {last_row[5]}  /  {n} individuos simulados)"
         )
 
     def _refresh_table(self):
