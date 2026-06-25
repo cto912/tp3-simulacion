@@ -6,7 +6,7 @@ from openpyxl.styles import Font, PatternFill, Alignment
 from tkinter import filedialog
 
 
-# ─── Simulation logic ────────────────────────────────────────────────────────
+# *----------SIMULACION---------------
 
 def respuesta_individuo(r, p1, p2, p3):
     if r < p1:
@@ -28,31 +28,30 @@ def run_simulation(n, p_neg, p_rec, p_norec, p_rec_no, p_rec_dud, p_rec_si, p_no
     rows = []
     dudoso_acm = 0
     p_dudoso = 0
-    for i in range(1, n + 1):
+    for i in range(1, n+1):
         r1 = random.random()
         resp1 = respuesta_individuo(r1, p_neg, p_rec, p_norec)
-        dudoso_count = 0
         if resp1 in ("Recordaba el mensaje", "No podia recordar el mensaje"):
             r2 = random.random()
             if resp1 == "Recordaba el mensaje":
                 resp2 = respuesta_secundaria(r2, p_rec_no, p_rec_dud, p_rec_si)
             else:
                 resp2 = respuesta_secundaria(r2, p_norec_no, p_norec_dud, p_norec_si)
+
             if resp2 == "Dudoso":
-                dudoso_count = 1
                 dudoso_acm += 1
             p_dudoso = dudoso_acm / i
-            rows.append((i, round(r1, 4), resp1, round(r2, 4), resp2, dudoso_count, dudoso_acm, p_dudoso))
+            rows.append((i, round(r1, 4), resp1, round(r2, 4), resp2, dudoso_acm, p_dudoso))
         else:
             p_dudoso = dudoso_acm / i
-            rows.append((i, round(r1, 4), resp1, "", "", dudoso_count, dudoso_acm, p_dudoso))
+            rows.append((i, round(r1, 4), resp1, "", "", dudoso_acm, p_dudoso))
     return rows
 
 
-# ─── Main GUI ────────────────────────────────────────────────────────────────
+# ---------------------INTERFAZ GRAFICA---------------------------------------
 
-COLS = ("Nro", "RAND1", "Respuesta 1", "RAND2", "Respuesta 2", "Dudoso Count", "Dudoso ACM", "P() Dudoso")
-COL_WIDTHS = (60, 70, 200, 70, 160, 110, 90, 90)
+COLS = ("Nro", "RAND1", "Respuesta 1", "RAND2", "Respuesta 2", "Dudoso ACM", "P() Dudoso")
+COL_WIDTHS = (60, 70, 200, 70, 160, 90, 90)
 SEL_BG = "#f5c542"
 SEL_FG = "#1a1a1a"
 
@@ -70,14 +69,12 @@ class SimApp(tk.Tk):
 
         self._build_ui()
 
-    # ── UI construction ──────────────────────────────────────────────────────
-
     def _build_ui(self):
-        # ── top controls ──────────────────────────────────────────────────
+
         ctrl = tk.LabelFrame(self, text="Parámetros", bg="#f0f0f0", padx=8, pady=6)
         ctrl.pack(fill="x", padx=10, pady=(10, 4))
 
-        # row 0 – simulation size & range
+        # fila 0 - Ingreso de individuos y limites de muestreo de filas
         tk.Label(ctrl, text="Nro de individuos:", bg="#f0f0f0").grid(row=0, column=0, sticky="e", padx=4)
         self.e_n = tk.Entry(ctrl, width=8); self.e_n.insert(0, "10"); self.e_n.grid(row=0, column=1, sticky="w")
 
@@ -87,7 +84,7 @@ class SimApp(tk.Tk):
         tk.Label(ctrl, text="Hasta:", bg="#f0f0f0").grid(row=0, column=4, sticky="e", padx=(12,4))
         self.e_to = tk.Entry(ctrl, width=8); self.e_to.insert(0, "10"); self.e_to.grid(row=0, column=5, sticky="w")
 
-        # row 1 – probabilities group 1
+        # fila 1 - Grupo de probababilidades 1
         tk.Label(ctrl, text="─── Respuesta individuo ───", bg="#f0f0f0", fg="#555").grid(
             row=1, column=0, columnspan=6, sticky="w", padx=4, pady=(8,2))
 
@@ -97,7 +94,7 @@ class SimApp(tk.Tk):
             e = tk.Entry(ctrl, width=7); e.insert(0, val); e.grid(row=2, column=col*2+1, sticky="w")
             setattr(self, attr, e)
 
-        # row 2 – probabilities group 2
+        # fila 2 - Grupo de probabilidades 2
         tk.Label(ctrl, text="─── Si recordaba el mensaje ───", bg="#f0f0f0", fg="#555").grid(
             row=3, column=0, columnspan=6, sticky="w", padx=4, pady=(8,2))
 
@@ -107,7 +104,7 @@ class SimApp(tk.Tk):
             e = tk.Entry(ctrl, width=7); e.insert(0, val); e.grid(row=4, column=col*2+1, sticky="w")
             setattr(self, attr, e)
 
-        # row 3 – probabilities group 3
+        # fila 3 - Grupo de probabilidades 3
         tk.Label(ctrl, text="─── Si NO recordaba el mensaje ───", bg="#f0f0f0", fg="#555").grid(
             row=5, column=0, columnspan=6, sticky="w", padx=4, pady=(8,2))
 
@@ -117,7 +114,7 @@ class SimApp(tk.Tk):
             e = tk.Entry(ctrl, width=7); e.insert(0, val); e.grid(row=6, column=col*2+1, sticky="w")
             setattr(self, attr, e)
 
-        # buttons
+        # botones
         btn_frame = tk.Frame(ctrl, bg="#f0f0f0")
         btn_frame.grid(row=7, column=0, columnspan=6, pady=(10,2), sticky="w", padx=4)
         tk.Button(btn_frame, text="▶  Simular", command=self._simulate, bg="#3a7bd5", fg="white",
@@ -125,11 +122,11 @@ class SimApp(tk.Tk):
         tk.Button(btn_frame, text="📥  Exportar a Excel", command=self._export_excel, bg="#217346", fg="white",
                   font=("Helvetica", 10), relief="flat", padx=12, pady=4).pack(side="left")
 
-        # ── result label ──────────────────────────────────────────────────
+        # label de resultado
         self.lbl_result = tk.Label(self, text="", bg="#f0f0f0", font=("Helvetica", 10, "italic"), fg="#333")
         self.lbl_result.pack(anchor="w", padx=14, pady=(0,2))
 
-        # ── table ─────────────────────────────────────────────────────────
+        # tabla de simulacion
         table_frame = tk.Frame(self)
         table_frame.pack(fill="both", expand=True, padx=10, pady=(0,10))
 
@@ -139,7 +136,7 @@ class SimApp(tk.Tk):
         style.configure("Treeview.Heading", font=("Helvetica", 9, "bold"), background="#3a7bd5", foreground="white")
         style.map("Treeview", background=[("selected", SEL_BG)], foreground=[("selected", SEL_FG)])
 
-        # frozen header via a separate header Treeview (always visible)
+        # encabezado
         self.tree = ttk.Treeview(table_frame, columns=COLS, show="headings", selectmode="extended")
         for col, w in zip(COLS, COL_WIDTHS):
             self.tree.heading(col, text=col)
@@ -187,7 +184,7 @@ class SimApp(tk.Tk):
             
         total = round(sum(vals), 10)
         if abs(total - 1.0) > 1e-9:
-            raise ValueError(f"Las probabilidades de '{group_name}' suman {total:.4f}, deben sumar 1.0")
+            raise ValueError(f"Las probabilidades de '{group_name}' suman {total:.9f}, deben sumar 1.0 {1e-9}")
 
     def _read_params(self):
         n     = self._get_int(self.e_n, "Nro de individuos")
