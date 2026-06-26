@@ -60,7 +60,7 @@ SEL_FG = "#1a1a1a"
 class SimApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Simulación Monte Carlo – tp3sim")
+        self.title("TP3-G16-SIMULACION")
         self.resizable(True, True)
         self.configure(bg="#f0f0f0")
 
@@ -270,7 +270,7 @@ class SimApp(tk.Tk):
         else:
             self._selected_iids.add(nro)
         self._refresh_table()
-        # keep treeview selection in sync
+        
         self.tree.selection_set([str(i) for i in self._selected_iids if self.tree.exists(str(i))])
 
     def _export_excel(self):
